@@ -3,7 +3,7 @@
 
 - 本人在 Windows x64 的 python2.7.9版本下测试通过，其中需要的python库请大家自行安装。
 
-- 本人部分采用了https://github.com/egrcc/zhihu-python上的代码，感谢其无私分享。
+- 本人部分采用了https://github.com/egrcc/zhihu-python 上的代码，感谢其无私分享。
 
 - 配置： 在config中填写自己的邮箱和密码用于登录。
 
