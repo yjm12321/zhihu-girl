@@ -11,9 +11,16 @@ import ConfigParser
 from bs4 import BeautifulSoup
 import sys
 import exceptions
+from Bloom_Filter import BloomFilter
 
 #reload(sys)
 #sys.setdefaultencoding('utf8')
+
+initial_user_url = "http://www.zhihu.com/people/BigMing"
+bf = BloomFilter(1000000000,10)
+bf.add(initial_user_url)
+
+
 session = None
 
 cookies = {}
@@ -221,31 +228,35 @@ class User:
                             gender=2
                             
                             if (followee_count_1>limit_number):
-                                try:
-                                    gender_length=len(user_url_list[j].find("div", class_="zg-right").find("button").string)
-                                    gender_text = user_url_list[j].find("div", class_="zg-right").find("button").string[0:length].encode('utf-8','ignore')
-                                
-                                    var1='关注他'
-                                    var2='关注她'
-                                    var3='取消关注'
-                                    var4='关注'
-                                
-                                    if(gender_text.decode('utf-8')==var1.decode('utf-8')):
-                                        gender=1
 
-                                    if(gender_text.decode('utf-8')==var2.decode('utf-8')):
-                                        gender=0
-
-                                    if(gender_text.decode('utf-8')==var3.decode('utf-8')):
-                                        gender=3
-
-                                    if(gender_text.decode('utf-8')==var4.decode('utf-8')):
-                                        gender=2
+                                if bf.lookup(user_url_list[j].h2.a["href"])==0:
+                                    try:
+                                        gender_length=len(user_url_list[j].find("div", class_="zg-right").find("button").string)
+                                        gender_text = user_url_list[j].find("div", class_="zg-right").find("button").string[0:length].encode('utf-8','ignore')
                                     
-                                except:
-                                    gender=4
+                                        var1='关注他'
+                                        var2='关注她'
+                                        var3='取消关注'
+                                        var4='关注'
                                     
-                                yield User(user_url_list[j].h2.a["href"], user_url_list[j].h2.a.string.encode("utf-8",'ignore'), followee_count_1, gender, pic_url)
+                                        if(gender_text.decode('utf-8')==var1.decode('utf-8')):
+                                            gender=1
+
+                                        if(gender_text.decode('utf-8')==var2.decode('utf-8')):
+                                            gender=0
+
+                                        if(gender_text.decode('utf-8')==var3.decode('utf-8')):
+                                            gender=3
+
+                                        if(gender_text.decode('utf-8')==var4.decode('utf-8')):
+                                            gender=2
+                                        
+                                    except:
+                                        gender=4
+                                        
+                                    print gender
+                                    yield User(user_url_list[j].h2.a["href"], user_url_list[j].h2.a.string.encode("utf-8",'ignore'), followee_count_1, gender, pic_url)
+                                    bf.add(user_url_list[j].h2.a["href"])
                     else:
                         try:
                             post_url = "http://www.zhihu.com/node/ProfileFolloweesListV2"
@@ -286,32 +297,35 @@ class User:
                             gender=2
                             
                             if (followee_count_2>limit_number):
-                                try:
-                                    gender_text=followee_soup.find("div", class_="zg-right").find("button").string.encode('utf-8','ignore')
                                 
-                                    var1='关注他'
-                                    var2='关注她'
-                                    var3='取消关注'
-                                    var4='关注'
-                                
-                                    if(gender_text.decode('utf-8')==var1.decode('utf-8')):
-                                        gender=1
-
-                                    if(gender_text.decode('utf-8')==var2.decode('utf-8')):
-                                        gender=0
-
-                                    if(gender_text.decode('utf-8')==var3.decode('utf-8')):
-                                        gender=3
-                                        
-                                    if(gender_text.decode('utf-8')==var4.decode('utf-8')):
-                                        gender=2
-                                except:
-                                    gender=4
+                                user_url_list = followee_soup.find("div", class_="zm-profile-card zm-profile-section-item zg-clear no-hovercard")                           
                                     
-                            
-                                print gender
+                                if bf.lookup(user_url_list.h2.a["href"])==0:
+                                    try:
+                                        gender_text=followee_soup.find("div", class_="zg-right").find("button").string.encode('utf-8','ignore')
+                                    
+                                        var1='关注他'
+                                        var2='关注她'
+                                        var3='取消关注'
+                                        var4='关注'
+                                    
+                                        if(gender_text.decode('utf-8')==var1.decode('utf-8')):
+                                            gender=1
+
+                                        if(gender_text.decode('utf-8')==var2.decode('utf-8')):
+                                            gender=0
+
+                                        if(gender_text.decode('utf-8')==var3.decode('utf-8')):
+                                            gender=3
+                                            
+                                        if(gender_text.decode('utf-8')==var4.decode('utf-8')):
+                                            gender=2
+                                    except:
+                                        gender=4
+                                        
                                 
-                                user_url_list = followee_soup.find("div", class_="zm-profile-card zm-profile-section-item zg-clear no-hovercard")
-                                pic_url=followee_soup.find("img")["src"]
-                                yield User(user_url_list.h2.a["href"], user_url_list.h2.a.string.encode("utf-8",'ignore'),followee_count_2, gender, pic_url)
+                                    print gender
                                 
+                                    pic_url=followee_soup.find("img")["src"]
+                                    yield User(user_url_list.h2.a["href"], user_url_list.h2.a.string.encode("utf-8",'ignore'),followee_count_2, gender, pic_url)
+                                    bf.add(user_url_list.h2.a["href"])

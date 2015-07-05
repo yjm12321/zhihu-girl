@@ -1,5 +1,5 @@
 from zhihu import User
-from Bloom_Filter import BloomFilter
+
 import Queue
 import urllib2
 import sys
@@ -9,9 +9,6 @@ import platform
 def main():
 
     initial_user_url = "http://www.zhihu.com/people/BigMing"
-
-    bf = BloomFilter(1000000000,10);
-    bf.add(initial_user_url)
     
     url_queue=Queue.Queue()
     url_queue.put(initial_user_url)
@@ -54,64 +51,64 @@ def main():
                     
                     tried_url_count+=1
                     print "tried_url_count: " + str(tried_url_count)
-                    if bf.lookup(followee.user_url)==0:
-                        visited_url_count+=1
-                        print "visited_url_count: " + str(visited_url_count)
-                        bf.add(followee.user_url)               
-                        url_queue.put(followee.user_url)
-
-                        try:
-                            req = urllib2.Request(followee.user_pic_url) 
-                            res = urllib2.urlopen(followee.user_pic_url,timeout=10)
-                            pic = res.read()
-                            pextention = os.path.splitext(followee.user_pic_url)
                     
-                            if platform.system() == 'Windows':
-                                pname = followee.user_id.decode('utf-8','ignore').encode('gbk','ignore')
-                            else:
-                                pname=followee.user_id
-                                
-                            followee_count=followee.user_followers_num
+                    visited_url_count+=1
+                    print "visited_url_count: " + str(visited_url_count)
+                                       
+                    url_queue.put(followee.user_url)
 
-                            if followee.user_gender==0:
+                    try:
+                        req = urllib2.Request(followee.user_pic_url) 
+                        res = urllib2.urlopen(followee.user_pic_url,timeout=10)
+                        pic = res.read()
+                        pextention = os.path.splitext(followee.user_pic_url)
+                    
+                        if platform.system() == 'Windows':
+                            pname = followee.user_id.decode('utf-8','ignore').encode('gbk','ignore')
+                        else:
+                            pname=followee.user_id
+                                
+                        followee_count=followee.user_followers_num
+
+                        if followee.user_gender==0:
+                            p_full_path=save_pic_dir0+str(saved_count_female+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
+                            saved_count_female+=1
+                                
+                        if followee.user_gender==1 :
+                            p_full_path=save_pic_dir1+str(saved_count_male+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
+                            saved_count_male+=1
+
+                        if followee.user_gender==2 :
+                            p_full_path=save_pic_dir2+str(saved_count_emale+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
+                            saved_count_emale+=1
+                                
+                        if followee.user_gender==3 :
+                                
+                            if followee.get_user_gender()==0:
                                 p_full_path=save_pic_dir0+str(saved_count_female+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
                                 saved_count_female+=1
-                                
-                            if followee.user_gender==1 :
+                                    
+                            if followee.get_user_gender()==1:
                                 p_full_path=save_pic_dir1+str(saved_count_male+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
                                 saved_count_male+=1
-
-                            if followee.user_gender==2 :
+                                    
+                            if followee.get_user_gender()==2:
                                 p_full_path=save_pic_dir2+str(saved_count_emale+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
                                 saved_count_emale+=1
                                 
-                            if followee.user_gender==3 :
-                                
-                                if followee.get_user_gender()==0:
-                                    p_full_path=save_pic_dir0+str(saved_count_female+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
-                                    saved_count_female+=1
-                                    
-                                if followee.get_user_gender()==1:
-                                    p_full_path=save_pic_dir1+str(saved_count_male+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
-                                    saved_count_male+=1
-                                    
-                                if followee.get_user_gender()==2:
-                                    p_full_path=save_pic_dir2+str(saved_count_emale+1)+"_"+pname+"_"+str(followee_count)+pextention[1]
-                                    saved_count_emale+=1
-                                
-                            p = open(p_full_path, "wb");
-                            p.write(pic)
-                            p.close()
+                        p = open(p_full_path, "wb");
+                        p.write(pic)
+                        p.close()
                             
-                            count+=1
-                            print "female: "+str(saved_count_female)+"  "+"male: "+str(saved_count_male)+"  "+"emale: "+str(saved_count_emale)
-                            if count>limit_count:
-                                flag=False
-                                break  
-                        except:
-                            IO_error_count+=1;
-                            print "IO error"                    
-                    print " "              
+                        count+=1
+                        print "female: "+str(saved_count_female)+"  "+"male: "+str(saved_count_male)+"  "+"emale: "+str(saved_count_emale)
+                        if count>limit_count:
+                            flag=False
+                            break  
+                    except:
+                        IO_error_count+=1;
+                        print "IO error"                    
+                print " "              
             except:
                 print "why????????????????????"
         else:
