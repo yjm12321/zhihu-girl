@@ -10,7 +10,6 @@
 
 
 #联系我
-- 博客：@Bigming <http://www.mingpath.com/blog/>
 - github：@Bigming <https://github.com/yjm12321>
 - email：jianming.hugo.ying@gmail.com
 
